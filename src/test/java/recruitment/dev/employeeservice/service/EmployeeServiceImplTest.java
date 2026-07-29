@@ -65,6 +65,24 @@ class EmployeeServiceImplTest {
     }
 
     @Test
+    void updatesRoleAndDepartmentWhenTheyAreProvided() {
+        Employee existing = new Employee();
+        EmployeeDto request = employee(8L, 9L);
+        EmployeeRole role = new EmployeeRole();
+        Department department = new Department();
+        when(employeeRepository.findById(5L)).thenReturn(Optional.of(existing));
+        when(employeeRoleRepository.findById(8L)).thenReturn(Optional.of(role));
+        when(departmentRepository.findById(9L)).thenReturn(Optional.of(department));
+        when(employeeRepository.save(existing)).thenReturn(existing);
+        when(employeeMapper.toEmployeeDto(existing)).thenReturn(request);
+
+        assertThat(service.updateEmployee(request, 5L)).isSameAs(request);
+        assertThat(existing.getRole()).isSameAs(role);
+        assertThat(existing.getDepartment()).isSameAs(department);
+        verify(employeeRepository).save(existing);
+    }
+
+    @Test
     void failsWhenRequiredDepartmentIsMissingDuringCreate() {
         EmployeeDto request = employee(2L, 3L);
         when(employeeMapper.toEmployee(request)).thenReturn(new Employee());
