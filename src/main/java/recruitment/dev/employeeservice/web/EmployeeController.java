@@ -8,6 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import recruitment.dev.employeeservice.dto.EmployeeDto;
 import recruitment.dev.employeeservice.service.EmployeeService;
@@ -15,12 +17,18 @@ import recruitment.dev.employeeservice.service.EmployeeService;
 @RestController
 @RequestMapping("/employee")
 @RequiredArgsConstructor
-@PreAuthorize("hasRole('HR')")
 public class EmployeeController {
     private final EmployeeService employeeService;
 
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'HR', 'MANAGER')")
+    @GetMapping("/me")
+    public ResponseEntity<EmployeeDto> getCurrentEmployee(@AuthenticationPrincipal Jwt jwt) {
+        return ResponseEntity.ok(employeeService.getEmployeeByKeycloakId(jwt.getSubject()));
+    }
 
 
+
+    @PreAuthorize("hasRole('HR')")
 
     @PostMapping("/create")
     public ResponseEntity<EmployeeDto> createEmployee(   @Valid @RequestBody EmployeeDto employeeDto) {

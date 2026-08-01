@@ -6,6 +6,7 @@ import recruitment.dev.employeeservice.dto.EmployeeDto;
 
 public interface EmployeeService {
     EmployeeDto getEmployeeById(Long id);
+    EmployeeDto getEmployeeByKeycloakId(String keycloakId);
     EmployeeDto createEmployee(EmployeeDto employeeDto );
     EmployeeDto updateEmployee(EmployeeDto employeeDto , Long idEmployee);
     void deleteEmployee(Long id);

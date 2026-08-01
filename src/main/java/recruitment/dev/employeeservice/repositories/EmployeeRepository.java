@@ -5,5 +5,6 @@ import recruitment.dev.employeeservice.enities.Employee;
 
 public interface EmployeeRepository extends JpaRepository<Employee , Long> {
     Employee findByEmail(String email);
+    Employee findByKeycloakId(String keycloakId);
 
 }

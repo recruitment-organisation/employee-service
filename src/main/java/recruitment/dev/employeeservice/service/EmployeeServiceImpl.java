@@ -33,6 +33,15 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeMapper.toEmployeeDto(employee);
     }
 
+    @Override
+    public EmployeeDto getEmployeeByKeycloakId(String keycloakId) {
+        Employee employee = employeeRepository.findByKeycloakId(keycloakId);
+        if (employee == null) {
+            throw new RuntimeException("Employee not found");
+        }
+        return employeeMapper.toEmployeeDto(employee);
+    }
+
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
