@@ -26,10 +26,6 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getEmployeeByKeycloakId(jwt.getSubject()));
     }
 
-
-
-    @PreAuthorize("hasRole('HR')")
-
     @PostMapping("/create")
     public ResponseEntity<EmployeeDto> createEmployee(   @Valid @RequestBody EmployeeDto employeeDto) {
         EmployeeDto employee = employeeService.createEmployee(employeeDto);

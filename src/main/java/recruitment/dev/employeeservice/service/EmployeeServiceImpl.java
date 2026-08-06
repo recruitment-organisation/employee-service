@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import recruitment.dev.employeeservice.dto.EmployeeDto;
 
 import recruitment.dev.employeeservice.enities.Department;
@@ -45,7 +47,7 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Override
     public EmployeeDto createEmployee(EmployeeDto employeeDto) {
-
+        ensureUniqueIdentity(employeeDto, null);
 
         Employee employee = employeeMapper.toEmployee(employeeDto);
 
@@ -64,13 +66,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeMapper.toEmployeeDto(savedEmployee);
     }
 
-
-
     @Override
     public EmployeeDto updateEmployee(EmployeeDto employeeDto, Long idEmployee) {
 
 
         Employee employee = findEmployeeById(idEmployee);
+        ensureUniqueIdentity(employeeDto, idEmployee);
 
 
         employee.setKeycloakId(employeeDto.getKeycloakId());
@@ -149,6 +150,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeRoleRepository.findById(id)
                 .orElseThrow(() ->
                         new RuntimeException("Employee role not found"));
+    }
+
+    private void ensureUniqueIdentity(EmployeeDto employeeDto, Long employeeId) {
+        if (belongsToAnotherEmployee(employeeRepository.findByEmail(employeeDto.getEmail()), employeeId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee email already exists");
+        }
+        if (belongsToAnotherEmployee(employeeRepository.findByPhone(employeeDto.getPhone()), employeeId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee phone number already exists");
+        }
+        if (belongsToAnotherEmployee(employeeRepository.findByKeycloakId(employeeDto.getKeycloakId()), employeeId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Employee profile already exists");
+        }
+    }
+
+    private boolean belongsToAnotherEmployee(Employee employee, Long employeeId) {
+        return employee != null && !java.util.Objects.equals(employee.getId(), employeeId);
     }
 
 }

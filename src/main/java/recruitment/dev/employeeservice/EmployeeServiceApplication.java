@@ -17,7 +17,7 @@ public class EmployeeServiceApplication {
     }
 
 
-    @Bean
+
     CommandLineRunner initDatabase(
             DepartmentRepository departmentRepository,
             EmployeeRoleRepository roleRepository

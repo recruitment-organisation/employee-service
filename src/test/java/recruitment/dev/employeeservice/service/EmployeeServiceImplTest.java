@@ -2,6 +2,8 @@ package recruitment.dev.employeeservice.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -91,6 +93,20 @@ class EmployeeServiceImplTest {
         assertThatThrownBy(() -> service.createEmployee(request))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Department not found");
+        verify(employeeRepository, never()).save(any());
+    }
+
+    @Test
+    void rejectsDuplicatePhoneBeforeCreatingTheEmployee() {
+        EmployeeDto request = employee(2L, 3L);
+        Employee existing = new Employee();
+        existing.setId(9L);
+        when(employeeRepository.findByPhone(request.getPhone())).thenReturn(existing);
+
+        assertThatThrownBy(() -> service.createEmployee(request))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting(exception -> ((ResponseStatusException) exception).getStatusCode())
+                .isEqualTo(HttpStatus.CONFLICT);
         verify(employeeRepository, never()).save(any());
     }
 
