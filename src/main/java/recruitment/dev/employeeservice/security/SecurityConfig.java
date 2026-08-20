@@ -52,7 +52,6 @@ public class SecurityConfig {
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
-                                .decoder(jwtDecoder())
                                 .jwtAuthenticationConverter(jwtAuthConverter)
                         )
                 )
@@ -60,8 +59,4 @@ public class SecurityConfig {
     }
 
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        return JwtDecoders.fromOidcIssuerLocation(uri);
-    }
 }
