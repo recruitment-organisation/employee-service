@@ -1,0 +1,24 @@
+CREATE TABLE IF NOT EXISTS companies (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(160) NOT NULL UNIQUE,
+    slug VARCHAR(180) NOT NULL UNIQUE,
+    email VARCHAR(180),
+    phone VARCHAR(30),
+    address VARCHAR(500),
+    website VARCHAR(500),
+    logo_url VARCHAR(1000),
+    description VARCHAR(3000),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS company_id BIGINT;
+ALTER TABLE employees ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT TRUE;
+
+DO $$ BEGIN
+    ALTER TABLE employees ADD CONSTRAINT fk_employee_company FOREIGN KEY (company_id) REFERENCES companies(id);
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+CREATE INDEX IF NOT EXISTS idx_employee_company ON employees(company_id);

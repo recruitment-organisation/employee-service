@@ -44,6 +44,14 @@ public class Employee {
 
     private String position;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean active = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
 
 
     @ManyToOne(fetch = FetchType.LAZY)

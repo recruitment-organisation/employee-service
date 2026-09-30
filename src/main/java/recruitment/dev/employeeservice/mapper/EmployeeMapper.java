@@ -12,11 +12,14 @@ public interface EmployeeMapper {
 
     @Mapping(target = "roleId", source = "role.id")
     @Mapping(target = "departmentId", source = "department.id")
+    @Mapping(target = "companyId", source = "company.id")
+    @Mapping(target = "companyName", source = "company.name")
     EmployeeDto toEmployeeDto(Employee employee);
 
 
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "department", ignore = true)
+    @Mapping(target = "company", ignore = true)
     Employee toEmployee(EmployeeDto employeeDto);
 
 }

@@ -27,12 +27,14 @@ public class EmployeeController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     public ResponseEntity<EmployeeDto> createEmployee(   @Valid @RequestBody EmployeeDto employeeDto) {
         EmployeeDto employee = employeeService.createEmployee(employeeDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(employee);
     }
 
     @PutMapping("/update/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable Long id,
                                                       @Valid  @RequestBody EmployeeDto employeeDto) {
         EmployeeDto employee = employeeService.updateEmployee(employeeDto, id);
@@ -40,17 +42,20 @@ public class EmployeeController {
     }
 
     @GetMapping("/get/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     public ResponseEntity<EmployeeDto> getEmployeeById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
     @GetMapping("/getall")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Page<EmployeeDto>> getAllEmployees(  @RequestParam(defaultValue = "0") int page,
                                                                @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(employeeService.getAllEmployee(Pageable.ofSize(size).withPage(page)));
     }
 
     @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();

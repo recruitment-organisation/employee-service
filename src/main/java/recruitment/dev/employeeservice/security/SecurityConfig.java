@@ -27,16 +27,6 @@ public class SecurityConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer workflowEmployeeEndpointCustomizer() {
-        return web -> web.ignoring().requestMatchers(request ->
-                HttpMethod.POST.matches(request.getMethod())
-                        && "/employee/create".equals(request.getRequestURI())
-                        || HttpMethod.GET.matches(request.getMethod())
-                        && "/actuator/health".equals(request.getRequestURI())
-        );
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .cors(cors -> cors.disable())
@@ -44,7 +34,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(ar -> ar
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/employee/create").permitAll()
                         .requestMatchers(
                                 "/actuator/health",
                                 "/actuator/health/**"

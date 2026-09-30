@@ -60,4 +60,8 @@ public class EmployeeDto {
     @NotNull(message = "Department id is required")
     private Long departmentId;
 
+    private Long companyId;
+    private String companyName;
+    private boolean active;
+
 }
