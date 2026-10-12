@@ -11,5 +11,6 @@ public interface EmployeeService {
     EmployeeDto updateEmployee(EmployeeDto employeeDto , Long idEmployee);
     void deleteEmployee(Long id);
     Page<EmployeeDto> getAllEmployee(Pageable pageable);
+    Page<EmployeeDto> getAllEmployeeByCompany(Long companyId, Pageable pageable);
 
 }

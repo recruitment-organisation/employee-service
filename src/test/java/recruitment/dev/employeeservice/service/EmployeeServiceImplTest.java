@@ -2,6 +2,8 @@ package recruitment.dev.employeeservice.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.mockito.InjectMocks;
@@ -17,6 +19,7 @@ import recruitment.dev.employeeservice.repositories.EmployeeRepository;
 import recruitment.dev.employeeservice.repositories.EmployeeRoleRepository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,6 +124,20 @@ class EmployeeServiceImplTest {
         assertThatThrownBy(() -> service.getEmployeeById(7L))
                 .isInstanceOf(RuntimeException.class)
                 .hasMessage("Employee not found");
+    }
+
+    @Test
+    void listsOnlyEmployeesFromRequestedCompany() {
+        Employee companyEmployee = new Employee();
+        EmployeeDto expected = employee(2L, 3L);
+        PageRequest pageable = PageRequest.of(0, 20);
+        when(employeeRepository.findByCompanyId(2L, pageable))
+                .thenReturn(new PageImpl<>(List.of(companyEmployee), pageable, 1));
+        when(employeeMapper.toEmployeeDto(companyEmployee)).thenReturn(expected);
+
+        assertThat(service.getAllEmployeeByCompany(2L, pageable).getContent())
+                .containsExactly(expected);
+        verify(employeeRepository, never()).findAll(pageable);
     }
 
     private EmployeeDto employee(Long roleId, Long departmentId) {

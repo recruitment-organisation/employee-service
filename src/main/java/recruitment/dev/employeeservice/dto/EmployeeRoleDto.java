@@ -22,4 +22,8 @@ public class EmployeeRoleDto {
 
     private String description;
 
+    private Long companyId;
+
+    private String companyName;
+
 }

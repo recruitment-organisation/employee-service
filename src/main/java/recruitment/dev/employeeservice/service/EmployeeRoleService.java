@@ -8,6 +8,7 @@ import recruitment.dev.employeeservice.dto.EmployeeRoleDto;
 public interface EmployeeRoleService {
 EmployeeRoleDto createEmployeeRole(EmployeeRoleDto employeeRoleDto);
 Page<EmployeeRoleDto> getAllEmployeeRole(Pageable pageable);
+Page<EmployeeRoleDto> getAllEmployeeRoleByCompany(Long companyId, Pageable pageable);
 EmployeeRoleDto getEmployeeRoleById(Long id);
 EmployeeRoleDto updateEmployeeRole(EmployeeRoleDto employeeRoleDto, Long idRole);
 void deleteEmployeeRole(Long id);

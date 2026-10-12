@@ -20,10 +20,14 @@ public class EmployeeRole {
     private Long id;
 
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
 
     private String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
 
 }

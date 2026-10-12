@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import recruitment.dev.employeeservice.dto.EmployeeDto;
@@ -18,6 +19,7 @@ import recruitment.dev.employeeservice.repositories.EmployeeRoleRepository;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class EmployeeServiceImpl implements EmployeeService {
 
 
@@ -123,6 +125,13 @@ public class EmployeeServiceImpl implements EmployeeService {
         Page<Employee> employees = employeeRepository.findAll(pageable);
 
         return employees.map(employeeMapper::toEmployeeDto);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<EmployeeDto> getAllEmployeeByCompany(Long companyId, Pageable pageable) {
+        return employeeRepository.findByCompanyId(companyId, pageable)
+                .map(employeeMapper::toEmployeeDto);
     }
 
 

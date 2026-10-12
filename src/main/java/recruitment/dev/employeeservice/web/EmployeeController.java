@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -49,9 +50,14 @@ public class EmployeeController {
 
     @GetMapping("/getall")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<Page<EmployeeDto>> getAllEmployees(  @RequestParam(defaultValue = "0") int page,
-                                                               @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(employeeService.getAllEmployee(Pageable.ofSize(size).withPage(page)));
+    public ResponseEntity<Page<EmployeeDto>> getAllEmployees(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = Pageable.ofSize(size).withPage(page);
+        return ResponseEntity.ok(hasRole(jwt, "ADMIN")
+                ? employeeService.getAllEmployee(pageable)
+                : employeeService.getAllEmployeeByCompany(requiredCompany(jwt), pageable));
     }
 
     @DeleteMapping("/delete/{id}")
@@ -61,6 +67,24 @@ public class EmployeeController {
         return ResponseEntity.noContent().build();
     }
 
+    private Long requiredCompany(Jwt jwt) {
+        Object claim = jwt == null ? null : jwt.getClaim("companyId");
+        if (claim instanceof Number number) return number.longValue();
+        if (claim instanceof String value && !value.isBlank()) {
+            try {
+                return Long.valueOf(value);
+            } catch (NumberFormatException ignored) {
+                // Handled by the access-denied response below.
+            }
+        }
+        throw new AccessDeniedException("No company is associated with this account");
+    }
 
+    @SuppressWarnings("unchecked")
+    private boolean hasRole(Jwt jwt, String role) {
+        if (jwt == null || jwt.getClaim("realm_access") == null) return false;
+        Object roles = ((java.util.Map<String, Object>) jwt.getClaim("realm_access")).get("roles");
+        return roles instanceof java.util.Collection<?> values && values.contains(role);
+    }
 
 }
