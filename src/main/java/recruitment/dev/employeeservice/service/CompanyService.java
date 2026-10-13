@@ -30,7 +30,13 @@ public class CompanyService {
         Company company = Company.builder().name(input.getName().trim()).slug(slug).email(trim(input.getEmail()))
                 .phone(trim(input.getPhone())).address(trim(input.getAddress())).website(trim(input.getWebsite()))
                 .logoUrl(trim(input.getLogoUrl())).description(trim(input.getDescription())).active(input.isActive()).build();
-        return toDto(companies.save(company));
+        Company saved = companies.save(company);
+        roles.save(EmployeeRole.builder()
+                .name("HR")
+                .description("Responsable des ressources humaines")
+                .company(saved)
+                .build());
+        return toDto(saved);
     }
 
     @Transactional(readOnly = true)
@@ -53,7 +59,8 @@ public class CompanyService {
     public EmployeeDto createHrProfile(Long companyId, CreateHrProfileRequest request) {
         Company company = requireCompany(companyId);
         if (!company.isActive()) throw new ResponseStatusException(HttpStatus.CONFLICT, "Company is inactive");
-        EmployeeRole hrRole = roles.findByNameIgnoreCase("HR").orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "HR employee role is not configured"));
+        EmployeeRole hrRole = roles.findByCompanyIdAndNameIgnoreCase(companyId, "HR")
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.CONFLICT, "HR employee role is not configured for this company"));
         Employee employee = Employee.builder().keycloakId(request.keycloakId()).firstName(request.firstName()).lastName(request.lastName())
                 .email(request.email()).phone(request.phone()).hireDate(LocalDate.now()).position("Responsable RH")
                 .role(hrRole).company(company).active(request.active() == null || request.active()).build();
